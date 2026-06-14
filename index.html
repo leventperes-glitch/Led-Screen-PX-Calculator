@@ -10,448 +10,288 @@
 <title>LED Ekran Hesaplayıcı</title>
 <link rel="manifest" href="manifest.json">
 <style>
-  :root {
-    --bg: #0a0e1a;
-    --surface: #111827;
-    --surface2: #1a2236;
-    --border: rgba(255,255,255,0.08);
-    --blue: #1e6fff;
-    --blue-dim: rgba(30,111,255,0.12);
-    --blue-border: rgba(30,111,255,0.3);
-    --text: #f0f4ff;
-    --text-muted: #8896b3;
-    --text-dim: #4a5568;
-    --accent: #1e6fff;
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-  }
+:root{--bg:#0a0e1a;--surface:#111827;--surface2:#1a2236;--border:rgba(255,255,255,0.08);--blue:#1e6fff;--blue-dim:rgba(30,111,255,0.12);--blue-border:rgba(30,111,255,0.3);--text:#f0f4ff;--text-muted:#8896b3;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;min-height:100dvh;overscroll-behavior:none}
+.app{max-width:430px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+.header{padding:calc(var(--safe-top) + 16px) 20px 16px;display:flex;align-items:center;gap:12px;background:var(--bg);position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border)}
+.header-icon{width:36px;height:36px;background:var(--blue-dim);border:1px solid var(--blue-border);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.header-icon svg{width:20px;height:20px}
+.header-title{font-size:17px;font-weight:600;color:var(--text)}
+.header-sub{font-size:12px;color:var(--text-muted);margin-top:1px}
+.nav-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border)}
+.nav-tab{flex:1;padding:12px 8px;text-align:center;font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.content{flex:1;overflow-y:auto;padding:16px 16px calc(var(--safe-bottom)+80px);display:flex;flex-direction:column;gap:12px}
+.page{display:none;flex-direction:column;gap:12px}
+.page.active{display:flex}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.card-header{padding:14px 16px 0;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em}
+.card-body{padding:12px 16px 16px}
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:13px;color:var(--text-muted);margin-bottom:6px}
+select,input[type=number],input[type=text],input[type=date]{width:100%;height:44px;padding:0 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;appearance:none;-webkit-appearance:none;outline:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238896b3' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+select:disabled{opacity:.4;cursor:not-allowed}
+input:focus,select:focus{border-color:var(--blue);background:rgba(30,111,255,0.06)}
+.tabs{display:flex;gap:6px;background:var(--surface2);padding:4px;border-radius:10px;margin-bottom:14px}
+.tab{flex:1;height:34px;border:none;border-radius:7px;background:transparent;color:var(--text-muted);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.tab.active{background:var(--blue);color:#fff}
+.size-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.spec-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px}
+.spec-item.featured{background:var(--blue-dim);border-color:var(--blue-border);grid-column:span 2}
+.s-label{font-size:11px;color:var(--text-muted);margin-bottom:4px}
+.spec-item.featured .s-label{color:#7aabff}
+.s-value{font-size:15px;font-weight:600;color:var(--text)}
+.spec-item.featured .s-value{font-size:22px;color:#fff;letter-spacing:-.3px}
+.s-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.btn{width:100%;height:48px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s,transform .1s;margin-top:8px}
+.btn:active{opacity:.85;transform:scale(.98)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.2)}
+.btn svg{width:17px;height:17px}
+.toast{position:fixed;bottom:calc(var(--safe-bottom)+24px);left:50%;transform:translateX(-50%) translateY(20px);background:#1a2236;border:1px solid var(--blue-border);color:var(--text);padding:12px 20px;border-radius:12px;font-size:14px;opacity:0;transition:all .25s;white-space:nowrap;pointer-events:none;z-index:100}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.install-banner{background:var(--blue-dim);border:1px solid var(--blue-border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.install-banner-text{flex:1;font-size:13px;color:#7aabff;line-height:1.4}
+.install-banner-text strong{color:var(--text);display:block;margin-bottom:2px}
+.install-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.screen-preview{width:100%;background:var(--surface2);border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:center;min-height:140px;margin-bottom:12px}
+.screen-box{background:var(--blue-dim);border:2px solid var(--blue);border-radius:4px;display:flex;align-items:center;justify-content:center;position:relative;transition:all .3s}
+.screen-box span{font-size:11px;color:#7aabff;text-align:center}
+.ekran-list{display:flex;flex-direction:column;gap:10px}
+.ekran-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px}
+.ekran-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ekran-card-title{font-size:14px;font-weight:600;color:var(--text)}
+.ekran-card-badge{font-size:11px;color:var(--text-muted);background:var(--surface);padding:3px 8px;border-radius:6px}
+.ekran-card-specs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ekran-spec{font-size:12px;color:var(--text-muted)}
+.ekran-spec span{color:var(--text);font-weight:500}
+.ekran-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:20px;padding:0 4px}
+.toplam-card{background:rgba(30,111,255,0.08);border:1px solid var(--blue-border);border-radius:12px;padding:14px}
+.toplam-title{font-size:12px;color:#7aabff;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.toplam-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.toplam-item .tl{font-size:11px;color:var(--text-muted);margin-bottom:2px}
+.toplam-item .tv{font-size:14px;font-weight:600;color:var(--text)}
+.gecmis-list{display:flex;flex-direction:column;gap:8px}
+.gecmis-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:border-color .15s}
+.gecmis-item:hover{border-color:var(--blue-border)}
+.gecmis-item-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.gecmis-item-name{font-size:14px;font-weight:600;color:var(--text)}
+.gecmis-item-date{font-size:11px;color:var(--text-muted)}
+.gecmis-item-detail{font-size:12px;color:var(--text-muted)}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:14px}
+.empty-state .ei{font-size:40px;margin-bottom:12px}
+.mesafe-info{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);border-radius:12px;padding:12px 14px;margin-top:8px}
+.mesafe-info .mi-label{font-size:11px;color:rgba(167,139,250,1);margin-bottom:4px}
+.mesafe-info .mi-value{font-size:18px;font-weight:600;color:#c4b5fd}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-  html, body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-    min-height: 100dvh;
-    overscroll-behavior: none;
-  }
-
-  .app {
-    max-width: 430px;
-    margin: 0 auto;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Header */
-  .header {
-    padding: calc(var(--safe-top) + 16px) 20px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--bg);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .header-icon {
-    width: 36px;
-    height: 36px;
-    background: var(--blue-dim);
-    border: 1px solid var(--blue-border);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .header-icon svg { width: 20px; height: 20px; }
-
-  .header-title { font-size: 17px; font-weight: 600; color: var(--text); }
-  .header-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
-
-  /* Scrollable content */
-  .content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px 16px calc(var(--safe-bottom) + 16px);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  /* Cards */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .card-header {
-    padding: 14px 16px 0;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: .08em;
-  }
-
-  .card-body { padding: 12px 16px 16px; }
-
-  /* Form rows */
-  .field { margin-bottom: 12px; }
-  .field:last-child { margin-bottom: 0; }
-  .field label {
-    display: block;
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-  }
-
-  select, input[type=number] {
-    width: 100%;
-    height: 44px;
-    padding: 0 14px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-size: 15px;
-    appearance: none;
-    -webkit-appearance: none;
-    outline: none;
-  }
-
-  select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238896b3' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 36px;
-  }
-
-  select:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  input[type=number]:focus, select:focus {
-    border-color: var(--blue);
-    background: rgba(30,111,255,0.06);
-  }
-
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { opacity: 1; }
-
-  /* Pill tabs */
-  .tabs {
-    display: flex;
-    gap: 6px;
-    background: var(--surface2);
-    padding: 4px;
-    border-radius: 10px;
-    margin-bottom: 14px;
-  }
-
-  .tab {
-    flex: 1;
-    height: 34px;
-    border: none;
-    border-radius: 7px;
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all .15s;
-  }
-
-  .tab.active {
-    background: var(--blue);
-    color: #fff;
-  }
-
-  /* Size row */
-  .size-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  /* Spec grid */
-  .spec-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .spec-item {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px;
-  }
-
-  .spec-item.featured {
-    background: var(--blue-dim);
-    border-color: var(--blue-border);
-    grid-column: span 2;
-  }
-
-  .spec-item .s-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-bottom: 4px;
-  }
-
-  .spec-item.featured .s-label { color: #7aabff; }
-
-  .spec-item .s-value {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .spec-item.featured .s-value {
-    font-size: 22px;
-    color: #fff;
-    letter-spacing: -.3px;
-  }
-
-  .spec-item .s-sub {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 2px;
-  }
-
-  /* CTA button */
-  .cta {
-    width: 100%;
-    height: 52px;
-    background: var(--blue);
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: opacity .15s, transform .1s;
-    margin-top: 4px;
-  }
-
-  .cta:active { opacity: .85; transform: scale(.98); }
-
-  .cta svg { width: 18px; height: 18px; }
-
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: calc(var(--safe-bottom) + 24px);
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: #1a2236;
-    border: 1px solid var(--blue-border);
-    color: var(--text);
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    opacity: 0;
-    transition: all .25s;
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 100;
-  }
-
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  /* Install banner */
-  .install-banner {
-    background: var(--blue-dim);
-    border: 1px solid var(--blue-border);
-    border-radius: 14px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .install-banner-text { flex: 1; font-size: 13px; color: #7aabff; line-height: 1.4; }
-  .install-banner-text strong { color: var(--text); display: block; margin-bottom: 2px; }
-
-  .install-btn {
-    background: var(--blue);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-  }
+@media print{
+  body{background:#fff!important;color:#000!important}
+  .header,.nav-tabs,.btn,.install-banner,.toast{display:none!important}
+  .app{max-width:100%!important}
+  .content{padding:0!important;overflow:visible!important}
+  .page{display:flex!important}
+  #page-hesapla{display:flex!important}
+  #page-coklu,#page-gecmis{display:none!important}
+  .card{background:#fff!important;border:1px solid #ddd!important;border-radius:8px!important;break-inside:avoid;margin-bottom:12px}
+  .card-header{color:#666!important}
+  .spec-item{background:#f5f5f5!important;border:1px solid #ddd!important}
+  .spec-item.featured{background:#e8f0fe!important;border-color:#4285f4!important}
+  .spec-item.featured .s-value{color:#1a56db!important}
+  .spec-item.featured .s-label{color:#3b82f6!important}
+  .s-label{color:#666!important}
+  .s-value{color:#111!important}
+  .s-sub{color:#888!important}
+  .screen-preview{background:#f5f5f5!important}
+  .screen-box{background:#dbeafe!important;border-color:#3b82f6!important}
+  .screen-box span{color:#1e40af!important}
+  .mesafe-info{background:#f3e8ff!important;border-color:#a855f7!important}
+  .mesafe-info .mi-label{color:#7c3aed!important}
+  .mesafe-info .mi-value{color:#6d28d9!important}
+  .print-header{display:block!important}
+}
+.print-header{display:none;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #3b82f6}
+.print-header h1{font-size:20px;font-weight:700;color:#111;margin-bottom:4px}
+.print-header p{font-size:13px;color:#666}
 </style>
 </head>
 <body>
 <div class="app">
-
   <div class="header">
     <div class="header-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="#1e6fff" stroke-width="1.8">
         <rect x="2" y="5" width="20" height="14" rx="2"/>
-        <circle cx="7" cy="10" r="1" fill="#1e6fff"/>
-        <circle cx="12" cy="10" r="1" fill="#1e6fff"/>
-        <circle cx="17" cy="10" r="1" fill="#1e6fff"/>
-        <circle cx="7" cy="14" r="1" fill="#1e6fff"/>
-        <circle cx="12" cy="14" r="1" fill="#1e6fff"/>
-        <circle cx="17" cy="14" r="1" fill="#1e6fff"/>
+        <circle cx="7" cy="10" r="1" fill="#1e6fff"/><circle cx="12" cy="10" r="1" fill="#1e6fff"/><circle cx="17" cy="10" r="1" fill="#1e6fff"/>
+        <circle cx="7" cy="14" r="1" fill="#1e6fff"/><circle cx="12" cy="14" r="1" fill="#1e6fff"/><circle cx="17" cy="14" r="1" fill="#1e6fff"/>
       </svg>
     </div>
     <div>
       <div class="header-title">LED Hesaplayıcı</div>
-      <div class="header-sub">Universal line · Piksel hesaplama</div>
+      <div class="header-sub">Universal line · Sahne & Etkinlik</div>
     </div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPage('hesapla',this)">Hesapla</div>
+    <div class="nav-tab" onclick="showPage('coklu',this)">Çoklu Ekran</div>
+    <div class="nav-tab" onclick="showPage('gecmis',this)">Geçmiş</div>
   </div>
 
   <div class="content">
 
-    <!-- Install banner (shown if not standalone) -->
-    <div class="install-banner" id="installBanner" style="display:none">
-      <div class="install-banner-text">
-        <strong>Ana ekrana ekle</strong>
-        İnternet olmadan da kullanmak için kur
-      </div>
-      <button class="install-btn" id="installBtn">Kur</button>
-    </div>
+    <!-- HESAPLA -->
+    <div id="page-hesapla" class="page active">
 
-    <!-- Model -->
-    <div class="card">
-      <div class="card-header">Model</div>
-      <div class="card-body">
-        <div class="field">
-          <label>Model hattı</label>
-          <select disabled>
-            <option>Universal line</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Versiyon (piksel aralığı)</label>
-          <select id="version" onchange="calculate()">
-            <option value="2.6indoor">Indoor 2.6 mm</option>
-            <option value="2.976indoor">Indoor 2.976 mm</option>
-            <option value="3.9indoor">Indoor 3.9 mm</option>
-            <option value="3.9outdoor">Outdoor 3.9 mm</option>
-            <option value="4.81outdoor">Outdoor 4.81 mm</option>
-          </select>
+      <div class="install-banner" id="installBanner" style="display:none">
+        <div class="install-banner-text"><strong>Ana ekrana ekle</strong>İnternet olmadan da kullanmak için kur</div>
+        <button class="install-btn" id="installBtn">Kur</button>
+      </div>
+
+      <div class="print-header">
+        <h1 id="print-title">LED Ekran Teknik Özeti</h1>
+        <p id="print-meta"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Etkinlik Bilgisi</div>
+        <div class="card-body">
+          <div class="field"><label>Etkinlik / Proje adı</label><input type="text" id="etkinlik-adi" placeholder="Örn: İstanbul Konseri 2025" oninput="updatePrintHeader()"></div>
+          <div class="field"><label>Tarih</label><input type="date" id="etkinlik-tarih" oninput="updatePrintHeader()"></div>
         </div>
       </div>
-    </div>
 
-    <!-- Size -->
-    <div class="card">
-      <div class="card-header">Boyut</div>
-      <div class="card-body">
-        <div class="tabs">
-          <button class="tab active" onclick="setUnit('meters',this)">Metre</button>
-          <button class="tab" onclick="setUnit('panels',this)">Panel</button>
-        </div>
-        <div class="tabs">
-          <button class="tab active" onclick="setRatio('16:9',this)">16:9</button>
-          <button class="tab" onclick="setRatio('21:9',this)">21:9</button>
-          <button class="tab" onclick="setRatio('4:3',this)">4:3</button>
-          <button class="tab" onclick="setRatio('custom',this)">Özel</button>
-        </div>
-        <div class="size-row">
+      <div class="card">
+        <div class="card-header">Model</div>
+        <div class="card-body">
+          <div class="field"><label>Model hattı</label><select disabled><option>Universal line</option></select></div>
           <div class="field">
-            <label id="wlabel">Genişlik (m)</label>
-            <input type="number" id="width" value="5" step="0.01" min="0.1" inputmode="decimal" oninput="syncHeight();calculate()">
+            <label>Versiyon (piksel aralığı)</label>
+            <select id="version" onchange="calculate()">
+              <option value="2.6indoor">Indoor 2.6 mm</option>
+              <option value="2.976indoor">Indoor 2.976 mm</option>
+              <option value="3.9indoor">Indoor 3.9 mm</option>
+              <option value="3.9outdoor">Outdoor 3.9 mm</option>
+              <option value="4.81outdoor">Outdoor 4.81 mm</option>
+            </select>
           </div>
-          <div class="field">
-            <label id="hlabel">Yükseklik (m)</label>
-            <input type="number" id="height" value="2.81" step="0.01" min="0.1" inputmode="decimal" oninput="calculate()">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Boyut</div>
+        <div class="card-body">
+          <div class="tabs">
+            <button class="tab active" onclick="setUnit('meters',this)">Metre</button>
+            <button class="tab" onclick="setUnit('panels',this)">Panel</button>
           </div>
+          <div class="tabs">
+            <button class="tab active" onclick="setRatio('16:9',this)">16:9</button>
+            <button class="tab" onclick="setRatio('21:9',this)">21:9</button>
+            <button class="tab" onclick="setRatio('4:3',this)">4:3</button>
+            <button class="tab" onclick="setRatio('custom',this)">Özel</button>
+          </div>
+          <div class="size-row">
+            <div class="field"><label id="wlabel">Genişlik (m)</label><input type="number" id="width" value="5" step="0.01" min="0.1" inputmode="decimal" oninput="syncHeight();calculate()"></div>
+            <div class="field"><label id="hlabel">Yükseklik (m)</label><input type="number" id="height" value="2.81" step="0.01" min="0.1" inputmode="decimal" oninput="calculate()"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Ekran Özellikleri</div>
+        <div class="card-body">
+          <div class="screen-preview" id="preview-wrap">
+            <div class="screen-box" id="preview-box"><span id="preview-label">—</span></div>
+          </div>
+
+          <div class="spec-grid">
+            <div class="spec-item featured"><div class="s-label">Çözünürlük</div><div class="s-value" id="s-res">— × —</div><div class="s-sub" id="s-pixels">Toplam piksel hesaplanıyor…</div></div>
+            <div class="spec-item"><div class="s-label">Piksel aralığı</div><div class="s-value" id="s-pitch">—</div></div>
+            <div class="spec-item"><div class="s-label">En boy oranı</div><div class="s-value" id="s-ratio">—</div></div>
+            <div class="spec-item"><div class="s-label">Toplam panel</div><div class="s-value" id="s-panels">—</div></div>
+            <div class="spec-item"><div class="s-label">Genişlik</div><div class="s-value" id="s-width">—</div><div class="s-sub" id="s-width2"></div></div>
+            <div class="spec-item"><div class="s-label">Yükseklik</div><div class="s-value" id="s-height">—</div><div class="s-sub" id="s-height2"></div></div>
+            <div class="spec-item"><div class="s-label">Ort. güç</div><div class="s-value" id="s-avgpower">—</div></div>
+            <div class="spec-item"><div class="s-label">Maks. güç</div><div class="s-value" id="s-maxpower">—</div></div>
+            <div class="spec-item"><div class="s-label">Ağırlık</div><div class="s-value" id="s-weight">—</div></div>
+            <div class="spec-item"><div class="s-label">Voltaj / Frekans</div><div class="s-value">220 V / 50 Hz</div></div>
+          </div>
+
+          <div class="mesafe-info">
+            <div class="mi-label">Optimum izleme mesafesi</div>
+            <div class="mi-value" id="s-mesafe">—</div>
+          </div>
+
+          <button class="btn btn-secondary" onclick="copyPixels()" style="margin-top:12px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Piksel bilgisini kopyala
+          </button>
+          <button class="btn btn-secondary" onclick="kaydet()" style="margin-top:6px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Geçmişe kaydet
+          </button>
+          <button class="btn btn-primary" onclick="pdfIndir()" style="margin-top:6px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            PDF olarak indir
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Specs -->
-    <div class="card">
-      <div class="card-header">Ekran özellikleri</div>
-      <div class="card-body">
-        <div class="spec-grid">
-
-          <div class="spec-item featured">
-            <div class="s-label">Çözünürlük</div>
-            <div class="s-value" id="s-res">— × —</div>
-            <div class="s-sub" id="s-pixels">Toplam piksel hesaplanıyor…</div>
+    <!-- ÇOKLU EKRAN -->
+    <div id="page-coklu" class="page">
+      <div class="card">
+        <div class="card-header">Yeni Ekran Ekle</div>
+        <div class="card-body">
+          <div class="field"><label>Ekran adı</label><input type="text" id="c-adi" placeholder="Örn: Ana Sahne, Sol Yan"></div>
+          <div class="field">
+            <label>Versiyon</label>
+            <select id="c-version">
+              <option value="2.6indoor">Indoor 2.6 mm</option>
+              <option value="2.976indoor">Indoor 2.976 mm</option>
+              <option value="3.9indoor">Indoor 3.9 mm</option>
+              <option value="3.9outdoor">Outdoor 3.9 mm</option>
+              <option value="4.81outdoor">Outdoor 4.81 mm</option>
+            </select>
           </div>
-
-          <div class="spec-item">
-            <div class="s-label">Piksel aralığı</div>
-            <div class="s-value" id="s-pitch">2.6 mm</div>
+          <div class="size-row">
+            <div class="field"><label>Genişlik (m)</label><input type="number" id="c-width" value="4" step="0.01" min="0.1" inputmode="decimal"></div>
+            <div class="field"><label>Yükseklik (m)</label><input type="number" id="c-height" value="2.25" step="0.01" min="0.1" inputmode="decimal"></div>
           </div>
-
-          <div class="spec-item">
-            <div class="s-label">En boy oranı</div>
-            <div class="s-value" id="s-ratio">—</div>
-          </div>
-
-          <div class="spec-item">
-            <div class="s-label">Toplam panel</div>
-            <div class="s-value" id="s-panels">—</div>
-          </div>
-
-          <div class="spec-item">
-            <div class="s-label">Genişlik</div>
-            <div class="s-value" id="s-width">—</div>
-            <div class="s-sub" id="s-width2"></div>
-          </div>
-
-          <div class="spec-item">
-            <div class="s-label">Yükseklik</div>
-            <div class="s-value" id="s-height">—</div>
-            <div class="s-sub" id="s-height2"></div>
-          </div>
-
-          <div class="spec-item">
-            <div class="s-label">Ort. güç</div>
-            <div class="s-value" id="s-avgpower">—</div>
-          </div>
-
-          <div class="spec-item">
-            <div class="s-label">Maks. güç</div>
-            <div class="s-value" id="s-maxpower">—</div>
-          </div>
-
-          <div class="spec-item">
-            <div class="s-label">Ağırlık</div>
-            <div class="s-value" id="s-weight">—</div>
-          </div>
-
-          <div class="spec-item">
-            <div class="s-label">Voltaj / Frekans</div>
-            <div class="s-value">220 V / 50 Hz</div>
-          </div>
-
+          <button class="btn btn-primary" onclick="ekranEkle()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Ekrana ekle
+          </button>
         </div>
-
-        <button class="cta" onclick="copyPixels()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="9" y="9" width="13" height="13" rx="2"/>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-          </svg>
-          Piksel bilgisini kopyala
-        </button>
       </div>
+
+      <div id="ekran-list" class="ekran-list"></div>
+      <div id="toplam-card" style="display:none" class="toplam-card">
+        <div class="toplam-title">Toplam Sahne Özeti</div>
+        <div class="toplam-grid">
+          <div class="toplam-item"><div class="tl">Toplam panel</div><div class="tv" id="t-panels">—</div></div>
+          <div class="toplam-item"><div class="tl">Toplam ağırlık</div><div class="tv" id="t-weight">—</div></div>
+          <div class="toplam-item"><div class="tl">Ort. güç</div><div class="tv" id="t-avgpwr">—</div></div>
+          <div class="toplam-item"><div class="tl">Maks. güç</div><div class="tv" id="t-maxpwr">—</div></div>
+          <div class="toplam-item"><div class="tl">Toplam akım (ort.)</div><div class="tv" id="t-amps">—</div></div>
+          <div class="toplam-item"><div class="tl">Ekran sayısı</div><div class="tv" id="t-count">—</div></div>
+        </div>
+      </div>
+      <div id="coklu-empty" class="empty-state"><div class="ei">🎭</div>Henüz ekran eklenmedi.<br>Sahnenizi oluşturmak için ekran ekleyin.</div>
+    </div>
+
+    <!-- GEÇMİŞ -->
+    <div id="page-gecmis" class="page">
+      <div id="gecmis-list" class="gecmis-list"></div>
+      <div id="gecmis-empty" class="empty-state"><div class="ei">🕓</div>Henüz kayıtlı hesaplama yok.<br>Hesapla sekmesinden kaydedin.</div>
+      <button class="btn btn-danger" id="gecmis-temizle" onclick="gecmisTemizle()" style="display:none;margin-top:8px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        Geçmişi temizle
+      </button>
     </div>
 
   </div>
@@ -461,152 +301,246 @@
 
 <script>
 const versions = {
-  '2.6indoor':   {pitch:2.6,   pw:500, ph:500, wpx:192, hpx:192, wkg:8},
-  '2.976indoor': {pitch:2.976, pw:500, ph:500, wpx:168, hpx:168, wkg:7.5},
-  '3.9indoor':   {pitch:3.9,   pw:500, ph:500, wpx:128, hpx:128, wkg:7},
-  '3.9outdoor':  {pitch:3.9,   pw:500, ph:500, wpx:128, hpx:128, wkg:9.5},
-  '4.81outdoor': {pitch:4.81,  pw:500, ph:500, wpx:104, hpx:104, wkg:10}
+  '2.6indoor':   {pitch:2.6,   pw:500,ph:500,wpx:192,hpx:192,wkg:8},
+  '2.976indoor': {pitch:2.976, pw:500,ph:500,wpx:168,hpx:168,wkg:7.5},
+  '3.9indoor':   {pitch:3.9,   pw:500,ph:500,wpx:128,hpx:128,wkg:7},
+  '3.9outdoor':  {pitch:3.9,   pw:500,ph:500,wpx:128,hpx:128,wkg:9.5},
+  '4.81outdoor': {pitch:4.81,  pw:500,ph:500,wpx:104,hpx:104,wkg:10}
 };
 
-let currentUnit = 'meters', currentRatio = '16:9';
+let currentUnit='meters', currentRatio='16:9', lastCalc={};
+let ekranlar=[], gecmis=JSON.parse(localStorage.getItem('led-gecmis')||'[]');
 
-function setUnit(u, el) {
-  currentUnit = u;
-  document.querySelectorAll('.tabs .tab').forEach(t => {
-    if (t.onclick && t.onclick.toString().includes('setUnit')) t.classList.remove('active');
-  });
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
   el.classList.add('active');
-  const wl = document.getElementById('wlabel'), hl = document.getElementById('hlabel');
-  if (u === 'meters') {
-    wl.textContent = 'Genişlik (m)';
-    hl.textContent = 'Yükseklik (m)';
-    document.getElementById('width').step = '0.01';
-  } else {
-    wl.textContent = 'Genişlik (panel)';
-    hl.textContent = 'Yükseklik (panel)';
-    document.getElementById('width').step = '1';
-  }
+  if(id==='gecmis') renderGecmis();
+}
+
+function setUnit(u,el){
+  currentUnit=u;
+  document.querySelectorAll('.tabs .tab').forEach(t=>{if(t.onclick&&t.onclick.toString().includes('setUnit'))t.classList.remove('active')});
+  el.classList.add('active');
+  const wl=document.getElementById('wlabel'),hl=document.getElementById('hlabel');
+  if(u==='meters'){wl.textContent='Genişlik (m)';hl.textContent='Yükseklik (m)';document.getElementById('width').step='0.01';}
+  else{wl.textContent='Genişlik (panel)';hl.textContent='Yükseklik (panel)';document.getElementById('width').step='1';}
   calculate();
 }
 
-function setRatio(r, el) {
-  currentRatio = r;
-  document.querySelectorAll('.tabs .tab').forEach(t => {
-    if (t.onclick && t.onclick.toString().includes('setRatio')) t.classList.remove('active');
-  });
+function setRatio(r,el){
+  currentRatio=r;
+  document.querySelectorAll('.tabs .tab').forEach(t=>{if(t.onclick&&t.onclick.toString().includes('setRatio'))t.classList.remove('active')});
   el.classList.add('active');
-  if (r !== 'custom') syncHeight();
+  if(r!=='custom')syncHeight();
 }
 
-function syncHeight() {
-  if (currentRatio === 'custom') return;
-  const w = parseFloat(document.getElementById('width').value) || 0;
-  let ratio = 9/16;
-  if (currentRatio === '21:9') ratio = 9/21;
-  if (currentRatio === '4:3')  ratio = 3/4;
-  document.getElementById('height').value = (w * ratio).toFixed(currentUnit === 'panels' ? 0 : 2);
+function syncHeight(){
+  if(currentRatio==='custom')return;
+  const w=parseFloat(document.getElementById('width').value)||0;
+  let ratio=9/16;
+  if(currentRatio==='21:9')ratio=9/21;
+  if(currentRatio==='4:3')ratio=3/4;
+  document.getElementById('height').value=(w*ratio).toFixed(currentUnit==='panels'?0:2);
   calculate();
 }
 
-function getPanel() {
-  return versions[document.getElementById('version').value];
+function calcEkran(vKey,wIn,hIn,unit){
+  const p=versions[vKey];
+  const pwm=p.pw/1000,phm=p.ph/1000;
+  let wm,hm,wp,hp;
+  if(unit==='panels'){wp=Math.max(1,Math.round(wIn));hp=Math.max(1,Math.round(hIn));wm=wp*pwm;hm=hp*phm;}
+  else{wp=Math.max(1,Math.round(wIn/pwm));hp=Math.max(1,Math.round(hIn/phm));wm=wp*pwm;hm=hp*phm;}
+  const totalPanels=wp*hp, resW=wp*p.wpx, resH=hp*p.hpx, totalPx=resW*resH;
+  const area=wm*hm, avgPwr=(area*200/1000), maxPwr=(area*400/1000);
+  const avgAmps=(avgPwr*1000/220), maxAmps=(maxPwr*1000/220);
+  const weightKg=Math.round(totalPanels*p.wkg);
+  function gcd(a,b){return b===0?a:gcd(b,a%b);}
+  const g=gcd(resW,resH), ratioStr=(resW/g)+' : '+(resH/g);
+  const mesafeMin=(p.pitch*1000/1000).toFixed(1), mesafeOpt=(p.pitch*3000/1000).toFixed(1);
+  return {p,wm,hm,wp,hp,totalPanels,resW,resH,totalPx,avgPwr,maxPwr,avgAmps,maxAmps,weightKg,ratioStr,mesafeMin,mesafeOpt};
 }
 
-let lastCalc = {};
+function calculate(){
+  const vKey=document.getElementById('version').value;
+  const wIn=parseFloat(document.getElementById('width').value)||0;
+  const hIn=parseFloat(document.getElementById('height').value)||0;
+  const r=calcEkran(vKey,wIn,hIn,currentUnit);
 
-function calculate() {
-  const p = getPanel();
-  const wIn = parseFloat(document.getElementById('width').value) || 0;
-  const hIn = parseFloat(document.getElementById('height').value) || 0;
-  const pwm = p.pw / 1000, phm = p.ph / 1000;
-  let wm, hm, wpanels, hpanels;
+  document.getElementById('s-pitch').textContent=r.p.pitch+' mm';
+  document.getElementById('s-ratio').textContent=r.ratioStr;
+  document.getElementById('s-res').textContent=r.resW.toLocaleString('tr')+' × '+r.resH.toLocaleString('tr');
+  document.getElementById('s-pixels').textContent='Toplam '+r.totalPx.toLocaleString('tr')+' piksel';
+  document.getElementById('s-panels').textContent=r.totalPanels.toLocaleString('tr')+' adet';
+  document.getElementById('s-width').textContent=r.wm.toFixed(2)+' m';
+  document.getElementById('s-width2').textContent=r.wp+' panel';
+  document.getElementById('s-height').textContent=r.hm.toFixed(2)+' m';
+  document.getElementById('s-height2').textContent=r.hp+' panel';
+  document.getElementById('s-avgpower').textContent=r.avgPwr.toFixed(1)+' kW ('+r.avgAmps.toFixed(1)+' A)';
+  document.getElementById('s-maxpower').textContent=r.maxPwr.toFixed(1)+' kW ('+r.maxAmps.toFixed(1)+' A)';
+  document.getElementById('s-weight').textContent=r.weightKg+' kg';
+  document.getElementById('s-mesafe').textContent='Min '+r.mesafeMin+' m — Önerilen '+r.mesafeOpt+' m';
 
-  if (currentUnit === 'panels') {
-    wpanels = Math.max(1, Math.round(wIn));
-    hpanels = Math.max(1, Math.round(hIn));
-    wm = wpanels * pwm; hm = hpanels * phm;
-  } else {
-    wpanels = Math.max(1, Math.round(wIn / pwm));
-    hpanels = Math.max(1, Math.round(hIn / phm));
-    wm = wpanels * pwm; hm = hpanels * phm;
-  }
-
-  const totalPanels = wpanels * hpanels;
-  const resW = wpanels * p.wpx, resH = hpanels * p.hpx;
-  const totalPx = resW * resH;
-  const areaSqm = wm * hm;
-  const avgPwr = (areaSqm * 200 / 1000).toFixed(1);
-  const maxPwr = (areaSqm * 400 / 1000).toFixed(1);
-  const avgAmps = (parseFloat(avgPwr) * 1000 / 220).toFixed(1);
-  const maxAmps = (parseFloat(maxPwr) * 1000 / 220).toFixed(1);
-  const weightKg = Math.round(totalPanels * p.wkg);
-
-  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
-  const g = gcd(resW, resH);
-  const ratioW = resW / g, ratioH = resH / g;
-  const ratioStr = ratioW + ' : ' + ratioH;
-
-  document.getElementById('s-pitch').textContent = p.pitch + ' mm';
-  document.getElementById('s-ratio').textContent = ratioStr;
-  document.getElementById('s-res').textContent = resW.toLocaleString('tr') + ' × ' + resH.toLocaleString('tr');
-  document.getElementById('s-pixels').textContent = 'Toplam ' + totalPx.toLocaleString('tr') + ' piksel';
-  document.getElementById('s-panels').textContent = totalPanels.toLocaleString('tr') + ' adet';
-  document.getElementById('s-width').textContent = wm.toFixed(2) + ' m';
-  document.getElementById('s-width2').textContent = wpanels + ' panel';
-  document.getElementById('s-height').textContent = hm.toFixed(2) + ' m';
-  document.getElementById('s-height2').textContent = hpanels + ' panel';
-  document.getElementById('s-avgpower').textContent = avgPwr + ' kW (' + avgAmps + ' A)';
-  document.getElementById('s-maxpower').textContent = maxPwr + ' kW (' + maxAmps + ' A)';
-  document.getElementById('s-weight').textContent = weightKg + ' kg';
-
-  lastCalc = { resW, resH, totalPx, pitch: p.pitch, wm, hm, wpanels, hpanels, totalPanels, avgPwr, maxPwr, avgAmps, maxAmps };
+  updatePreview(r.wm,r.hm,r.resW,r.resH);
+  lastCalc=r;
 }
 
-function copyPixels() {
-  const c = lastCalc;
-  if (!c.resW) return;
-  const text = `LED Ekran Piksel Bilgisi\nÇözünürlük: ${c.resW} × ${c.resH} px\nToplam piksel: ${c.totalPx.toLocaleString('tr')} px\nPiksel aralığı: ${c.pitch} mm\nBoyut: ${c.wm.toFixed(2)} m × ${c.hm.toFixed(2)} m\nPanel: ${c.wpanels} × ${c.hpanels} = ${c.totalPanels} adet\nOrt. güç: ${c.avgPwr} kW (${c.avgAmps} A @ 220V)\nMaks. güç: ${c.maxPwr} kW (${c.maxAmps} A @ 220V)`;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(showToast);
-  } else {
-    const ta = document.createElement('textarea');
-    ta.value = text; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast();
-  }
+function updatePreview(wm,hm,resW,resH){
+  const wrap=document.getElementById('preview-wrap');
+  const box=document.getElementById('preview-box');
+  const maxW=wrap.clientWidth-32, maxH=120;
+  let bw=maxW, bh=maxW*(hm/wm);
+  if(bh>maxH){bh=maxH;bw=maxH*(wm/hm);}
+  box.style.width=Math.round(bw)+'px';
+  box.style.height=Math.round(bh)+'px';
+  document.getElementById('preview-label').textContent=wm.toFixed(2)+'m × '+hm.toFixed(2)+'m\n'+resW+' × '+resH+' px';
 }
 
-function showToast() {
-  const t = document.getElementById('toast');
+function updatePrintHeader(){
+  const ad=document.getElementById('etkinlik-adi').value;
+  const tar=document.getElementById('etkinlik-tarih').value;
+  document.getElementById('print-title').textContent=ad?ad+' — LED Teknik Özeti':'LED Ekran Teknik Özeti';
+  document.getElementById('print-meta').textContent=tar?'Tarih: '+new Date(tar).toLocaleDateString('tr-TR'):'' ;
+}
+
+function copyPixels(){
+  const c=lastCalc;
+  if(!c.resW)return;
+  const ad=document.getElementById('etkinlik-adi').value;
+  const tar=document.getElementById('etkinlik-tarih').value;
+  let text='';
+  if(ad)text+=ad+'\n';
+  if(tar)text+='Tarih: '+new Date(tar).toLocaleDateString('tr-TR')+'\n';
+  text+='\nLED Ekran Piksel Bilgisi\n';
+  text+='Çözünürlük: '+c.resW+' × '+c.resH+' px\n';
+  text+='Toplam piksel: '+c.totalPx.toLocaleString('tr')+' px\n';
+  text+='En boy oranı: '+c.ratioStr+'\n';
+  text+='Piksel aralığı: '+c.p.pitch+' mm\n';
+  text+='Boyut: '+c.wm.toFixed(2)+' m × '+c.hm.toFixed(2)+' m\n';
+  text+='Panel: '+c.wp+' × '+c.hp+' = '+c.totalPanels+' adet\n';
+  text+='Ort. güç: '+c.avgPwr.toFixed(1)+' kW ('+c.avgAmps.toFixed(1)+' A @ 220V)\n';
+  text+='Maks. güç: '+c.maxPwr.toFixed(1)+' kW ('+c.maxAmps.toFixed(1)+' A @ 220V)\n';
+  text+='İzleme mesafesi: Min '+c.mesafeMin+' m, Önerilen '+c.mesafeOpt+' m';
+  if(navigator.clipboard){navigator.clipboard.writeText(text).then(showToast);}
+  else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast();}
+}
+
+function kaydet(){
+  if(!lastCalc.resW){showToast('Önce hesaplama yapın');return;}
+  const ad=document.getElementById('etkinlik-adi').value||'İsimsiz Etkinlik';
+  const tar=document.getElementById('etkinlik-tarih').value||new Date().toISOString().split('T')[0];
+  const kayit={id:Date.now(),ad,tar,vKey:document.getElementById('version').value,wm:lastCalc.wm,hm:lastCalc.hm,resW:lastCalc.resW,resH:lastCalc.resH,totalPanels:lastCalc.totalPanels,pitch:lastCalc.p.pitch};
+  gecmis.unshift(kayit);
+  if(gecmis.length>15)gecmis=gecmis.slice(0,15);
+  localStorage.setItem('led-gecmis',JSON.stringify(gecmis));
+  showToast('Geçmişe kaydedildi ✓');
+}
+
+function renderGecmis(){
+  const list=document.getElementById('gecmis-list');
+  const empty=document.getElementById('gecmis-empty');
+  const btn=document.getElementById('gecmis-temizle');
+  if(!gecmis.length){list.innerHTML='';empty.style.display='block';btn.style.display='none';return;}
+  empty.style.display='none';btn.style.display='flex';
+  list.innerHTML=gecmis.map(g=>`
+    <div class="gecmis-item" onclick="gecmisYukle('${g.id}')">
+      <div class="gecmis-item-header">
+        <div class="gecmis-item-name">${g.ad}</div>
+        <div class="gecmis-item-date">${new Date(g.tar).toLocaleDateString('tr-TR')}</div>
+      </div>
+      <div class="gecmis-item-detail">${g.resW} × ${g.resH} px · ${g.wm.toFixed(2)}m × ${g.hm.toFixed(2)}m · ${g.pitch}mm</div>
+    </div>`).join('');
+}
+
+function gecmisYukle(id){
+  const g=gecmis.find(x=>x.id==id);
+  if(!g)return;
+  document.getElementById('etkinlik-adi').value=g.ad;
+  document.getElementById('etkinlik-tarih').value=g.tar;
+  document.getElementById('version').value=g.vKey;
+  document.getElementById('width').value=g.wm;
+  document.getElementById('height').value=g.hm;
+  currentUnit='meters';
+  showPage('hesapla',document.querySelectorAll('.nav-tab')[0]);
+  calculate();
+  showToast('Hesaplama yüklendi ✓');
+}
+
+function gecmisTemizle(){
+  if(!confirm('Tüm geçmiş silinsin mi?'))return;
+  gecmis=[];localStorage.removeItem('led-gecmis');renderGecmis();
+}
+
+function ekranEkle(){
+  const adi=document.getElementById('c-adi').value||('Ekran '+(ekranlar.length+1));
+  const vKey=document.getElementById('c-version').value;
+  const wIn=parseFloat(document.getElementById('c-width').value)||0;
+  const hIn=parseFloat(document.getElementById('c-height').value)||0;
+  if(!wIn||!hIn){showToast('Boyut girin');return;}
+  const r=calcEkran(vKey,wIn,hIn,'meters');
+  ekranlar.push({id:Date.now(),adi,vKey,r});
+  renderEkranlar();
+  document.getElementById('c-adi').value='';
+}
+
+function ekranSil(id){
+  ekranlar=ekranlar.filter(e=>e.id!=id);
+  renderEkranlar();
+}
+
+function renderEkranlar(){
+  const list=document.getElementById('ekran-list');
+  const empty=document.getElementById('coklu-empty');
+  const toplam=document.getElementById('toplam-card');
+  if(!ekranlar.length){list.innerHTML='';empty.style.display='block';toplam.style.display='none';return;}
+  empty.style.display='none';toplam.style.display='block';
+  list.innerHTML=ekranlar.map(e=>`
+    <div class="ekran-card">
+      <div class="ekran-card-header">
+        <div class="ekran-card-title">${e.adi}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="ekran-card-badge">${versions[e.vKey].pitch}mm</div>
+          <button class="ekran-del" onclick="ekranSil(${e.id})">×</button>
+        </div>
+      </div>
+      <div class="ekran-card-specs">
+        <div class="ekran-spec">Boyut: <span>${e.r.wm.toFixed(2)}m × ${e.r.hm.toFixed(2)}m</span></div>
+        <div class="ekran-spec">Panel: <span>${e.r.totalPanels} adet</span></div>
+        <div class="ekran-spec">Çözünürlük: <span>${e.r.resW}×${e.r.resH}</span></div>
+        <div class="ekran-spec">Maks. güç: <span>${e.r.maxPwr.toFixed(1)} kW</span></div>
+      </div>
+    </div>`).join('');
+
+  const tp=ekranlar.reduce((s,e)=>s+e.r.totalPanels,0);
+  const tw=ekranlar.reduce((s,e)=>s+e.r.weightKg,0);
+  const ta=ekranlar.reduce((s,e)=>s+e.r.avgPwr,0);
+  const tm=ekranlar.reduce((s,e)=>s+e.r.maxPwr,0);
+  document.getElementById('t-panels').textContent=tp+' adet';
+  document.getElementById('t-weight').textContent=tw+' kg';
+  document.getElementById('t-avgpwr').textContent=ta.toFixed(1)+' kW';
+  document.getElementById('t-maxpwr').textContent=tm.toFixed(1)+' kW';
+  document.getElementById('t-amps').textContent=(ta*1000/220).toFixed(1)+' A';
+  document.getElementById('t-count').textContent=ekranlar.length+' ekran';
+}
+
+function pdfIndir(){
+  updatePrintHeader();
+  window.print();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg||'Kopyalandı ✓';
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+  setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-// PWA install prompt
 let deferredPrompt;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('installBanner').style.display = 'flex';
-});
-document.getElementById('installBtn').addEventListener('click', () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => {
-      deferredPrompt = null;
-      document.getElementById('installBanner').style.display = 'none';
-    });
-  }
-});
-window.addEventListener('appinstalled', () => {
-  document.getElementById('installBanner').style.display = 'none';
-});
-
-// Register service worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js');
-}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBanner').style.display='flex';});
+document.getElementById('installBtn').addEventListener('click',()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('installBanner').style.display='none';});}});
+window.addEventListener('appinstalled',()=>{document.getElementById('installBanner').style.display='none';});
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js');}
 
 calculate();
 </script>
