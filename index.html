@@ -401,6 +401,11 @@
           </div>
 
           <div class="spec-item">
+            <div class="s-label">En boy oranı</div>
+            <div class="s-value" id="s-ratio">—</div>
+          </div>
+
+          <div class="spec-item">
             <div class="s-label">Toplam panel</div>
             <div class="s-value" id="s-panels">—</div>
           </div>
@@ -433,8 +438,8 @@
           </div>
 
           <div class="spec-item">
-            <div class="s-label">Voltaj</div>
-            <div class="s-value">110/208 V</div>
+            <div class="s-label">Voltaj / Frekans</div>
+            <div class="s-value">220 V / 50 Hz</div>
           </div>
 
         </div>
@@ -532,10 +537,17 @@ function calculate() {
   const areaSqm = wm * hm;
   const avgPwr = (areaSqm * 200 / 1000).toFixed(1);
   const maxPwr = (areaSqm * 400 / 1000).toFixed(1);
+  const avgAmps = (parseFloat(avgPwr) * 1000 / 220).toFixed(1);
+  const maxAmps = (parseFloat(maxPwr) * 1000 / 220).toFixed(1);
   const weightKg = Math.round(totalPanels * p.wkg);
-  const weightLb = Math.round(weightKg * 2.205);
+
+  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+  const g = gcd(resW, resH);
+  const ratioW = resW / g, ratioH = resH / g;
+  const ratioStr = ratioW + ' : ' + ratioH;
 
   document.getElementById('s-pitch').textContent = p.pitch + ' mm';
+  document.getElementById('s-ratio').textContent = ratioStr;
   document.getElementById('s-res').textContent = resW.toLocaleString('tr') + ' × ' + resH.toLocaleString('tr');
   document.getElementById('s-pixels').textContent = 'Toplam ' + totalPx.toLocaleString('tr') + ' piksel';
   document.getElementById('s-panels').textContent = totalPanels.toLocaleString('tr') + ' adet';
@@ -543,17 +555,17 @@ function calculate() {
   document.getElementById('s-width2').textContent = wpanels + ' panel';
   document.getElementById('s-height').textContent = hm.toFixed(2) + ' m';
   document.getElementById('s-height2').textContent = hpanels + ' panel';
-  document.getElementById('s-avgpower').textContent = avgPwr + ' kW';
-  document.getElementById('s-maxpower').textContent = maxPwr + ' kW';
+  document.getElementById('s-avgpower').textContent = avgPwr + ' kW (' + avgAmps + ' A)';
+  document.getElementById('s-maxpower').textContent = maxPwr + ' kW (' + maxAmps + ' A)';
   document.getElementById('s-weight').textContent = weightKg + ' kg';
 
-  lastCalc = { resW, resH, totalPx, pitch: p.pitch, wm, hm, wpanels, hpanels, totalPanels };
+  lastCalc = { resW, resH, totalPx, pitch: p.pitch, wm, hm, wpanels, hpanels, totalPanels, avgPwr, maxPwr, avgAmps, maxAmps };
 }
 
 function copyPixels() {
   const c = lastCalc;
   if (!c.resW) return;
-  const text = `LED Ekran Piksel Bilgisi\nÇözünürlük: ${c.resW} × ${c.resH} px\nToplam piksel: ${c.totalPx.toLocaleString('tr')} px\nPiksel aralığı: ${c.pitch} mm\nBoyut: ${c.wm.toFixed(2)} m × ${c.hm.toFixed(2)} m\nPanel: ${c.wpanels} × ${c.hpanels} = ${c.totalPanels} adet`;
+  const text = `LED Ekran Piksel Bilgisi\nÇözünürlük: ${c.resW} × ${c.resH} px\nToplam piksel: ${c.totalPx.toLocaleString('tr')} px\nPiksel aralığı: ${c.pitch} mm\nBoyut: ${c.wm.toFixed(2)} m × ${c.hm.toFixed(2)} m\nPanel: ${c.wpanels} × ${c.hpanels} = ${c.totalPanels} adet\nOrt. güç: ${c.avgPwr} kW (${c.avgAmps} A @ 220V)\nMaks. güç: ${c.maxPwr} kW (${c.maxAmps} A @ 220V)`;
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(showToast);
   } else {
