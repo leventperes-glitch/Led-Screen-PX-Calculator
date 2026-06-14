@@ -476,8 +476,9 @@ function updatePreview(wm,hm,resW,resH){
   const sy=Math.round((H-sH)/2);
   wrap.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="display:block;border-radius:12px;background:#111827">
   <rect x="${sx}" y="${sy}" width="${sW}" height="${sH}" fill="#0a1f3d" rx="4" stroke="#1e6fff" stroke-width="2"/>
-  <text x="${W/2}" y="${sy+sH/2-6}" fill="#4d8aff" font-size="12" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="600">${wm.toFixed(2)} m × ${hm.toFixed(2)} m</text>
-  <text x="${W/2}" y="${sy+sH/2+10}" fill="#7aabff" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle">${resW} × ${resH} px</text>
+  <text x="${W/2}" y="${sy+sH/2-18}" fill="rgba(30,111,255,0.35)" font-size="${Math.max(10,Math.min(18,sW/8))}" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="700" letter-spacing="3">LED EKRAN</text>
+  <text x="${W/2}" y="${sy+sH/2}" fill="#4d8aff" font-size="12" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="600">${wm.toFixed(2)} m × ${hm.toFixed(2)} m</text>
+  <text x="${W/2}" y="${sy+sH/2+14}" fill="#7aabff" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle">${resW} × ${resH} px</text>
 </svg>`;
 }
 
