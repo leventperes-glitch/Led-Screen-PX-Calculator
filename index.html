@@ -447,7 +447,16 @@ function calculate(){
   document.getElementById('s-avgpower').textContent=r.avgPwr.toFixed(1)+' kW ('+r.avgAmps.toFixed(1)+' A)';
   document.getElementById('s-maxpower').textContent=r.maxPwr.toFixed(1)+' kW ('+r.maxAmps.toFixed(1)+' A)';
   document.getElementById('s-weight').textContent=r.weightKg+' kg';
-  document.getElementById('s-mesafe').textContent='Min '+r.mesafeMin+' m — Önerilen '+r.mesafeOpt+' m';
+  // Viewing distance: max of pitch-based and screen-size-based
+  const pitchMin=parseFloat(r.mesafeMin);
+  const pitchOpt=parseFloat(r.mesafeOpt);
+  const sizeMin=parseFloat((r.wm*0.87).toFixed(1));
+  const sizeOpt=parseFloat((r.hm*3).toFixed(1));
+  const finalMin=Math.max(pitchMin,sizeMin).toFixed(1);
+  const finalOpt=Math.max(pitchOpt,sizeOpt).toFixed(1);
+  document.getElementById('s-mesafe').textContent='Min '+finalMin+' m — Önerilen '+finalOpt+' m';
+  lastCalc.mesafeMin=finalMin;
+  lastCalc.mesafeOpt=finalOpt;
 
   updatePreview(r.wm,r.hm,r.resW,r.resH);
   lastCalc=r;
@@ -644,8 +653,11 @@ function calcProcessor(){
   document.getElementById('p-portpx').textContent=portPx.toLocaleString('tr')+' px';
   document.getElementById('p-load').textContent=load+'%';
   const note=document.getElementById('p-note');
-  if(load>85){note.className='proc-note warn';note.textContent='Yük %'+load+' — bir işlemci daha eklemek önerilir.';}
-  else if(count>1){note.className='proc-note ok';note.textContent=count+' adet '+m.name+' ile kurulum tamamlanır. Port başına ~'+portPx.toLocaleString('tr')+' piksel.';}
+  if(load>85){
+    const optCount=Math.ceil(totalPx/(m.maxPx*0.85));
+    note.className='proc-note warn';
+    note.textContent='Optimum çalışma için '+optCount+' adet '+m.name+' önerilir (yük %'+Math.round((totalPx/(optCount*m.maxPx))*100)+' olur).';
+  } else if(count>1){note.className='proc-note ok';note.textContent=count+' adet '+m.name+' ile kurulum tamamlanır. Port başına ~'+portPx.toLocaleString('tr')+' piksel.';}
   else{note.className='proc-note ok';note.textContent='1 adet '+m.name+' yeterli. Kapasitenin %'+load+"'i kullanılıyor.";}
 }
 
