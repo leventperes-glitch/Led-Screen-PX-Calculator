@@ -1,0 +1,22 @@
+{
+  "name": "LED Ekran Hesaplayıcı",
+  "short_name": "LED Calc",
+  "description": "Universal line LED ekran piksel ve boyut hesaplayıcısı",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%230a0e1a'/><rect x='24' y='48' width='144' height='96' rx='8' fill='none' stroke='%231e6fff' stroke-width='8'/><circle cx='56' cy='80' r='6' fill='%231e6fff'/><circle cx='96' cy='80' r='6' fill='%231e6fff'/><circle cx='136' cy='80' r='6' fill='%231e6fff'/><circle cx='56' cy='112' r='6' fill='%231e6fff'/><circle cx='96' cy='112' r='6' fill='%231e6fff'/><circle cx='136' cy='112' r='6' fill='%231e6fff'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230a0e1a'/><rect x='64' y='128' width='384' height='256' rx='20' fill='none' stroke='%231e6fff' stroke-width='20'/><circle cx='148' cy='212' r='16' fill='%231e6fff'/><circle cx='256' cy='212' r='16' fill='%231e6fff'/><circle cx='364' cy='212' r='16' fill='%231e6fff'/><circle cx='148' cy='300' r='16' fill='%231e6fff'/><circle cx='256' cy='300' r='16' fill='%231e6fff'/><circle cx='364' cy='300' r='16' fill='%231e6fff'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

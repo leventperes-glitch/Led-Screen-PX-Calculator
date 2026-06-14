@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LED Calc">
+<title>LED Ekran Hesaplayıcı</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: rgba(255,255,255,0.08);
+    --blue: #1e6fff;
+    --blue-dim: rgba(30,111,255,0.12);
+    --blue-border: rgba(30,111,255,0.3);
+    --text: #f0f4ff;
+    --text-muted: #8896b3;
+    --text-dim: #4a5568;
+    --accent: #1e6fff;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    min-height: 100dvh;
+    overscroll-behavior: none;
+  }
+
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  .header {
+    padding: calc(var(--safe-top) + 16px) 20px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--blue-dim);
+    border: 1px solid var(--blue-border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-icon svg { width: 20px; height: 20px; }
+
+  .header-title { font-size: 17px; font-weight: 600; color: var(--text); }
+  .header-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+  /* Scrollable content */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 16px calc(var(--safe-bottom) + 16px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 14px 16px 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .card-body { padding: 12px 16px 16px; }
+
+  /* Form rows */
+  .field { margin-bottom: 12px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  select, input[type=number] {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 15px;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238896b3' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  select:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  input[type=number]:focus, select:focus {
+    border-color: var(--blue);
+    background: rgba(30,111,255,0.06);
+  }
+
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+
+  /* Pill tabs */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--surface2);
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+
+  .tab {
+    flex: 1;
+    height: 34px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .tab.active {
+    background: var(--blue);
+    color: #fff;
+  }
+
+  /* Size row */
+  .size-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Spec grid */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .spec-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  .spec-item.featured {
+    background: var(--blue-dim);
+    border-color: var(--blue-border);
+    grid-column: span 2;
+  }
+
+  .spec-item .s-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .spec-item.featured .s-label { color: #7aabff; }
+
+  .spec-item .s-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .spec-item.featured .s-value {
+    font-size: 22px;
+    color: #fff;
+    letter-spacing: -.3px;
+  }
+
+  .spec-item .s-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* CTA button */
+  .cta {
+    width: 100%;
+    height: 52px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity .15s, transform .1s;
+    margin-top: 4px;
+  }
+
+  .cta:active { opacity: .85; transform: scale(.98); }
+
+  .cta svg { width: 18px; height: 18px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: calc(var(--safe-bottom) + 24px);
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a2236;
+    border: 1px solid var(--blue-border);
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    opacity: 0;
+    transition: all .25s;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Install banner */
+  .install-banner {
+    background: var(--blue-dim);
+    border: 1px solid var(--blue-border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .install-banner-text { flex: 1; font-size: 13px; color: #7aabff; line-height: 1.4; }
+  .install-banner-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  .install-btn {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1e6fff" stroke-width="1.8">
+        <rect x="2" y="5" width="20" height="14" rx="2"/>
+        <circle cx="7" cy="10" r="1" fill="#1e6fff"/>
+        <circle cx="12" cy="10" r="1" fill="#1e6fff"/>
+        <circle cx="17" cy="10" r="1" fill="#1e6fff"/>
+        <circle cx="7" cy="14" r="1" fill="#1e6fff"/>
+        <circle cx="12" cy="14" r="1" fill="#1e6fff"/>
+        <circle cx="17" cy="14" r="1" fill="#1e6fff"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">LED Hesaplayıcı</div>
+      <div class="header-sub">Universal line · Piksel hesaplama</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Install banner (shown if not standalone) -->
+    <div class="install-banner" id="installBanner" style="display:none">
+      <div class="install-banner-text">
+        <strong>Ana ekrana ekle</strong>
+        İnternet olmadan da kullanmak için kur
+      </div>
+      <button class="install-btn" id="installBtn">Kur</button>
+    </div>
+
+    <!-- Model -->
+    <div class="card">
+      <div class="card-header">Model</div>
+      <div class="card-body">
+        <div class="field">
+          <label>Model hattı</label>
+          <select disabled>
+            <option>Universal line</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Versiyon (piksel aralığı)</label>
+          <select id="version" onchange="calculate()">
+            <option value="2.6indoor">Indoor 2.6 mm</option>
+            <option value="2.976indoor">Indoor 2.976 mm</option>
+            <option value="3.9indoor">Indoor 3.9 mm</option>
+            <option value="3.9outdoor">Outdoor 3.9 mm</option>
+            <option value="4.81outdoor">Outdoor 4.81 mm</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Size -->
+    <div class="card">
+      <div class="card-header">Boyut</div>
+      <div class="card-body">
+        <div class="tabs">
+          <button class="tab active" onclick="setUnit('meters',this)">Metre</button>
+          <button class="tab" onclick="setUnit('panels',this)">Panel</button>
+        </div>
+        <div class="tabs">
+          <button class="tab active" onclick="setRatio('16:9',this)">16:9</button>
+          <button class="tab" onclick="setRatio('21:9',this)">21:9</button>
+          <button class="tab" onclick="setRatio('4:3',this)">4:3</button>
+          <button class="tab" onclick="setRatio('custom',this)">Özel</button>
+        </div>
+        <div class="size-row">
+          <div class="field">
+            <label id="wlabel">Genişlik (m)</label>
+            <input type="number" id="width" value="5" step="0.01" min="0.1" inputmode="decimal" oninput="syncHeight();calculate()">
+          </div>
+          <div class="field">
+            <label id="hlabel">Yükseklik (m)</label>
+            <input type="number" id="height" value="2.81" step="0.01" min="0.1" inputmode="decimal" oninput="calculate()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Specs -->
+    <div class="card">
+      <div class="card-header">Ekran özellikleri</div>
+      <div class="card-body">
+        <div class="spec-grid">
+
+          <div class="spec-item featured">
+            <div class="s-label">Çözünürlük</div>
+            <div class="s-value" id="s-res">— × —</div>
+            <div class="s-sub" id="s-pixels">Toplam piksel hesaplanıyor…</div>
+          </div>
+
+          <div class="spec-item">
+            <div class="s-label">Piksel aralığı</div>
+            <div class="s-value" id="s-pitch">2.6 mm</div>
+          </div>
+
+          <div class="spec-item">
+            <div class="s-label">Toplam panel</div>
+            <div class="s-value" id="s-panels">—</div>
+          </div>
+
+          <div class="spec-item">
+            <div class="s-label">Genişlik</div>
+            <div class="s-value" id="s-width">—</div>
+            <div class="s-sub" id="s-width2"></div>
+          </div>
+
+          <div class="spec-item">
+            <div class="s-label">Yükseklik</div>
+            <div class="s-value" id="s-height">—</div>
+            <div class="s-sub" id="s-height2"></div>
+          </div>
+
+          <div class="spec-item">
+            <div class="s-label">Ort. güç</div>
+            <div class="s-value" id="s-avgpower">—</div>
+          </div>
+
+          <div class="spec-item">
+            <div class="s-label">Maks. güç</div>
+            <div class="s-value" id="s-maxpower">—</div>
+          </div>
+
+          <div class="spec-item">
+            <div class="s-label">Ağırlık</div>
+            <div class="s-value" id="s-weight">—</div>
+          </div>
+
+          <div class="spec-item">
+            <div class="s-label">Voltaj</div>
+            <div class="s-value">110/208 V</div>
+          </div>
+
+        </div>
+
+        <button class="cta" onclick="copyPixels()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Piksel bilgisini kopyala
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">Kopyalandı ✓</div>
+
+<script>
+const versions = {
+  '2.6indoor':   {pitch:2.6,   pw:500, ph:500, wpx:192, hpx:192, wkg:8},
+  '2.976indoor': {pitch:2.976, pw:500, ph:500, wpx:168, hpx:168, wkg:7.5},
+  '3.9indoor':   {pitch:3.9,   pw:500, ph:500, wpx:128, hpx:128, wkg:7},
+  '3.9outdoor':  {pitch:3.9,   pw:500, ph:500, wpx:128, hpx:128, wkg:9.5},
+  '4.81outdoor': {pitch:4.81,  pw:500, ph:500, wpx:104, hpx:104, wkg:10}
+};
+
+let currentUnit = 'meters', currentRatio = '16:9';
+
+function setUnit(u, el) {
+  currentUnit = u;
+  document.querySelectorAll('.tabs .tab').forEach(t => {
+    if (t.onclick && t.onclick.toString().includes('setUnit')) t.classList.remove('active');
+  });
+  el.classList.add('active');
+  const wl = document.getElementById('wlabel'), hl = document.getElementById('hlabel');
+  if (u === 'meters') {
+    wl.textContent = 'Genişlik (m)';
+    hl.textContent = 'Yükseklik (m)';
+    document.getElementById('width').step = '0.01';
+  } else {
+    wl.textContent = 'Genişlik (panel)';
+    hl.textContent = 'Yükseklik (panel)';
+    document.getElementById('width').step = '1';
+  }
+  calculate();
+}
+
+function setRatio(r, el) {
+  currentRatio = r;
+  document.querySelectorAll('.tabs .tab').forEach(t => {
+    if (t.onclick && t.onclick.toString().includes('setRatio')) t.classList.remove('active');
+  });
+  el.classList.add('active');
+  if (r !== 'custom') syncHeight();
+}
+
+function syncHeight() {
+  if (currentRatio === 'custom') return;
+  const w = parseFloat(document.getElementById('width').value) || 0;
+  let ratio = 9/16;
+  if (currentRatio === '21:9') ratio = 9/21;
+  if (currentRatio === '4:3')  ratio = 3/4;
+  document.getElementById('height').value = (w * ratio).toFixed(currentUnit === 'panels' ? 0 : 2);
+  calculate();
+}
+
+function getPanel() {
+  return versions[document.getElementById('version').value];
+}
+
+let lastCalc = {};
+
+function calculate() {
+  const p = getPanel();
+  const wIn = parseFloat(document.getElementById('width').value) || 0;
+  const hIn = parseFloat(document.getElementById('height').value) || 0;
+  const pwm = p.pw / 1000, phm = p.ph / 1000;
+  let wm, hm, wpanels, hpanels;
+
+  if (currentUnit === 'panels') {
+    wpanels = Math.max(1, Math.round(wIn));
+    hpanels = Math.max(1, Math.round(hIn));
+    wm = wpanels * pwm; hm = hpanels * phm;
+  } else {
+    wpanels = Math.max(1, Math.round(wIn / pwm));
+    hpanels = Math.max(1, Math.round(hIn / phm));
+    wm = wpanels * pwm; hm = hpanels * phm;
+  }
+
+  const totalPanels = wpanels * hpanels;
+  const resW = wpanels * p.wpx, resH = hpanels * p.hpx;
+  const totalPx = resW * resH;
+  const areaSqm = wm * hm;
+  const avgPwr = (areaSqm * 200 / 1000).toFixed(1);
+  const maxPwr = (areaSqm * 400 / 1000).toFixed(1);
+  const weightKg = Math.round(totalPanels * p.wkg);
+  const weightLb = Math.round(weightKg * 2.205);
+
+  document.getElementById('s-pitch').textContent = p.pitch + ' mm';
+  document.getElementById('s-res').textContent = resW.toLocaleString('tr') + ' × ' + resH.toLocaleString('tr');
+  document.getElementById('s-pixels').textContent = 'Toplam ' + totalPx.toLocaleString('tr') + ' piksel';
+  document.getElementById('s-panels').textContent = totalPanels.toLocaleString('tr') + ' adet';
+  document.getElementById('s-width').textContent = wm.toFixed(2) + ' m';
+  document.getElementById('s-width2').textContent = wpanels + ' panel';
+  document.getElementById('s-height').textContent = hm.toFixed(2) + ' m';
+  document.getElementById('s-height2').textContent = hpanels + ' panel';
+  document.getElementById('s-avgpower').textContent = avgPwr + ' kW';
+  document.getElementById('s-maxpower').textContent = maxPwr + ' kW';
+  document.getElementById('s-weight').textContent = weightKg + ' kg';
+
+  lastCalc = { resW, resH, totalPx, pitch: p.pitch, wm, hm, wpanels, hpanels, totalPanels };
+}
+
+function copyPixels() {
+  const c = lastCalc;
+  if (!c.resW) return;
+  const text = `LED Ekran Piksel Bilgisi\nÇözünürlük: ${c.resW} × ${c.resH} px\nToplam piksel: ${c.totalPx.toLocaleString('tr')} px\nPiksel aralığı: ${c.pitch} mm\nBoyut: ${c.wm.toFixed(2)} m × ${c.hm.toFixed(2)} m\nPanel: ${c.wpanels} × ${c.hpanels} = ${c.totalPanels} adet`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(showToast);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast();
+  }
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').style.display = 'flex';
+});
+document.getElementById('installBtn').addEventListener('click', () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('installBanner').style.display = 'none';
+    });
+  }
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').style.display = 'none';
+});
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+
+calculate();
+</script>
+</body>
+</html>
