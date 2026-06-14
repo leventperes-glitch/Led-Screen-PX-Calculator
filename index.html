@@ -89,11 +89,22 @@ input:focus,select:focus{border-color:var(--blue);background:rgba(30,111,255,0.0
 .mesafe-info .mi-label{font-size:11px;color:rgba(167,139,250,1);margin-bottom:4px}
 .mesafe-info .mi-value{font-size:18px;font-weight:600;color:#c4b5fd}
 
-@page{margin:16mm 14mm;size:A4}
+.proc-section{background:rgba(30,111,255,0.06);border:1px solid rgba(30,111,255,0.2);border-radius:12px;padding:14px;margin-top:10px}
+.proc-label{font-size:11px;font-weight:600;color:#7aabff;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.proc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.proc-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.pi-label{font-size:10px;color:var(--text-muted);margin-bottom:3px}
+.pi-value{font-size:15px;font-weight:600;color:var(--text)}
+.proc-note{font-size:12px;margin-top:10px;padding:8px 10px;border-radius:8px;display:none}
+.proc-note.ok{background:rgba(16,185,129,0.1);color:#34d399;border:1px solid rgba(16,185,129,0.2);display:block}
+.proc-note.warn{background:rgba(245,158,11,0.1);color:#fbbf24;border:1px solid rgba(245,158,11,0.2);display:block}
+@page{margin:12mm 14mm;size:A4;marks:none}
+@page :first{margin-top:12mm}
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   body{background:#fff!important;color:#111!important}
-  .header,.nav-tabs,.btn,.install-banner,.toast,.screen-preview{display:none!important}
+  .header,.nav-tabs,.btn,.install-banner,.toast,.screen-preview,.mesafe-info+.btn,.field select:disabled{display:none!important}
+  .screen-preview{display:none!important}
   .app{max-width:100%!important}
   .content{padding:0!important;overflow:visible!important}
   .page{display:none!important}
@@ -116,6 +127,13 @@ input:focus,select:focus{border-color:var(--blue);background:rgba(30,111,255,0.0
   .s-value{color:#111!important;font-size:14px!important}
   .s-sub{color:#555!important}
   .mesafe-info{background:#f3e8ff!important;border:1.5px solid #a855f7!important;border-radius:8px!important}
+  .proc-section{background:#e8f0fe!important;border:1.5px solid #93c5fd!important;border-radius:8px!important}
+  .proc-label{color:#1e6fff!important}
+  .proc-item{background:#f8faff!important;border:1px solid #bfdbfe!important}
+  .pi-label{color:#3b5bdb!important}
+  .pi-value{color:#111!important}
+  .proc-note.ok{background:#ecfdf5!important;color:#065f46!important;border-color:#6ee7b7!important}
+  .proc-note.warn{background:#fffbeb!important;color:#92400e!important;border-color:#fcd34d!important}
   .mesafe-info .mi-label{color:#7c3aed!important}
   .mesafe-info .mi-value{color:#5b21b6!important}
   .print-header{display:flex!important}
@@ -221,9 +239,7 @@ input:focus,select:focus{border-color:var(--blue);background:rgba(30,111,255,0.0
       <div class="card">
         <div class="card-header">Ekran Özellikleri</div>
         <div class="card-body">
-          <div class="screen-preview" id="preview-wrap">
-            <div class="screen-box" id="preview-box"><span id="preview-label">—</span></div>
-          </div>
+          <div class="screen-preview" id="preview-wrap"></div>
 
           <div class="spec-grid">
             <div class="spec-item featured"><div class="s-label">Çözünürlük</div><div class="s-value" id="s-res">— × —</div><div class="s-sub" id="s-pixels">Toplam piksel hesaplanıyor…</div></div>
@@ -241,6 +257,35 @@ input:focus,select:focus{border-color:var(--blue);background:rgba(30,111,255,0.0
           <div class="mesafe-info">
             <div class="mi-label">Optimum izleme mesafesi</div>
             <div class="mi-value" id="s-mesafe">—</div>
+          </div>
+
+          <div class="proc-section">
+            <div class="proc-label">Novastar İşlemci</div>
+            <div id="proc-auto-badge" style="display:none;font-size:11px;color:#34d399;margin-bottom:8px;padding:5px 10px;background:rgba(16,185,129,0.1);border-radius:6px;border:1px solid rgba(16,185,129,0.2)"></div>
+            <select id="proc-model" onchange="calcProcessor()" style="margin-bottom:10px">
+              <option value="MCTRL4K">MCTRL4K — 16 port (maks. 8.8M px)</option>
+              <option value="VX1000">VX1000 — 10 port (maks. 6.5M px)</option>
+              <option value="VX2000">VX2000 — 20 port (maks. 13M px)</option>
+            </select>
+            <div class="proc-grid">
+              <div class="proc-item">
+                <div class="pi-label">Gerekli işlemci</div>
+                <div class="pi-value" id="p-count">—</div>
+              </div>
+              <div class="proc-item">
+                <div class="pi-label">Port başına piksel</div>
+                <div class="pi-value" id="p-portpx">—</div>
+              </div>
+              <div class="proc-item">
+                <div class="pi-label">Toplam port</div>
+                <div class="pi-value" id="p-ports">—</div>
+              </div>
+              <div class="proc-item">
+                <div class="pi-label">Yük oranı</div>
+                <div class="pi-value" id="p-load">—</div>
+              </div>
+            </div>
+            <div class="proc-note" id="p-note"></div>
           </div>
 
           <button class="btn btn-secondary" onclick="copyPixels()" style="margin-top:12px">
@@ -401,17 +446,25 @@ function calculate(){
 
   updatePreview(r.wm,r.hm,r.resW,r.resH);
   lastCalc=r;
+  calcProcessor();
 }
 
 function updatePreview(wm,hm,resW,resH){
   const wrap=document.getElementById('preview-wrap');
-  const box=document.getElementById('preview-box');
-  const maxW=wrap.clientWidth-32, maxH=120;
-  let bw=maxW, bh=maxW*(hm/wm);
-  if(bh>maxH){bh=maxH;bw=maxH*(wm/hm);}
-  box.style.width=Math.round(bw)+'px';
-  box.style.height=Math.round(bh)+'px';
-  document.getElementById('preview-label').textContent=wm.toFixed(2)+'m × '+hm.toFixed(2)+'m\n'+resW+' × '+resH+' px';
+  if(!wrap)return;
+  const W=wrap.clientWidth||340;
+  const H=160;
+  const pad=24;
+  let sW=W-pad*2, sH=(W-pad*2)*(hm/wm);
+  if(sH>H-pad*2){sH=H-pad*2;sW=sH*(wm/hm);}
+  sW=Math.round(sW);sH=Math.round(sH);
+  const sx=Math.round((W-sW)/2);
+  const sy=Math.round((H-sH)/2);
+  wrap.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="display:block;border-radius:12px;background:#111827">
+  <rect x="${sx}" y="${sy}" width="${sW}" height="${sH}" fill="#0a1f3d" rx="4" stroke="#1e6fff" stroke-width="2"/>
+  <text x="${W/2}" y="${sy+sH/2-6}" fill="#4d8aff" font-size="12" font-family="system-ui,sans-serif" text-anchor="middle" font-weight="600">${wm.toFixed(2)} m × ${hm.toFixed(2)} m</text>
+  <text x="${W/2}" y="${sy+sH/2+10}" fill="#7aabff" font-size="10" font-family="system-ui,sans-serif" text-anchor="middle">${resW} × ${resH} px</text>
+</svg>`;
 }
 
 function updatePrintHeader(){
@@ -547,6 +600,50 @@ function renderEkranlar(){
 function pdfIndir(){
   updatePrintHeader();
   window.print();
+}
+
+const novastarModels={
+  'MCTRL4K':{ports:16,maxPx:8800000, name:'MCTRL4K'},
+  'VX1000': {ports:10,maxPx:6500000, name:'VX1000'},
+  'VX2000': {ports:20,maxPx:13000000,name:'VX2000 Pro'},
+};
+
+function autoSelectProcessor(totalPx){
+  // Pick the best single device; if none fits, pick VX2000 and calculate count
+  const priority=['VX1000','MCTRL4K','VX2000'];
+  let best=null;
+  for(const key of priority){
+    if(totalPx<=novastarModels[key].maxPx){best=key;break;}
+  }
+  if(!best)best='VX2000'; // largest available, will need multiple
+  document.getElementById('proc-model').value=best;
+  const badge=document.getElementById('proc-auto-badge');
+  badge.style.display='block';
+  const m=novastarModels[best];
+  const count=Math.ceil(totalPx/m.maxPx);
+  badge.textContent='Otomatik seçildi: '+m.name+(count>1?' × '+count+' adet':'');
+}
+
+function calcProcessor(){
+  const totalPx=lastCalc.totalPx;
+  if(!totalPx)return;
+  autoSelectProcessor(totalPx);
+  if(!lastCalc.totalPx)return;
+  const key=document.getElementById('proc-model').value;
+  const m=novastarModels[key];
+  const totalPx=lastCalc.totalPx;
+  const count=Math.ceil(totalPx/m.maxPx);
+  const totalPorts=count*m.ports;
+  const portPx=Math.round(totalPx/(count*m.ports));
+  const load=Math.round((totalPx/(count*m.maxPx))*100);
+  document.getElementById('p-count').textContent=count+' adet';
+  document.getElementById('p-ports').textContent=totalPorts+' port';
+  document.getElementById('p-portpx').textContent=portPx.toLocaleString('tr')+' px';
+  document.getElementById('p-load').textContent=load+'%';
+  const note=document.getElementById('p-note');
+  if(load>85){note.className='proc-note warn';note.textContent='Yük %'+load+' — bir işlemci daha eklemek önerilir.';}
+  else if(count>1){note.className='proc-note ok';note.textContent=count+' adet '+m.name+' ile kurulum tamamlanır. Port başına ~'+portPx.toLocaleString('tr')+' piksel.';}
+  else{note.className='proc-note ok';note.textContent='1 adet '+m.name+' yeterli. Kapasitenin %'+load+"'i kullanılıyor.";}
 }
 
 function showToast(msg){
