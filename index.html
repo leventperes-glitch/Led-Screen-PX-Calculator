@@ -628,10 +628,8 @@ function calcProcessor(){
   const totalPx=lastCalc.totalPx;
   if(!totalPx)return;
   autoSelectProcessor(totalPx);
-  if(!lastCalc.totalPx)return;
   const key=document.getElementById('proc-model').value;
   const m=novastarModels[key];
-  const totalPx=lastCalc.totalPx;
   const count=Math.ceil(totalPx/m.maxPx);
   const totalPorts=count*m.ports;
   const portPx=Math.round(totalPx/(count*m.ports));
