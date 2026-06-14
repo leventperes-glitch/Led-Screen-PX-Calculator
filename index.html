@@ -89,34 +89,42 @@ input:focus,select:focus{border-color:var(--blue);background:rgba(30,111,255,0.0
 .mesafe-info .mi-label{font-size:11px;color:rgba(167,139,250,1);margin-bottom:4px}
 .mesafe-info .mi-value{font-size:18px;font-weight:600;color:#c4b5fd}
 
+@page{margin:16mm 14mm;size:A4}
 @media print{
-  body{background:#fff!important;color:#000!important}
-  .header,.nav-tabs,.btn,.install-banner,.toast{display:none!important}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important;color:#111!important}
+  .header,.nav-tabs,.btn,.install-banner,.toast,.screen-preview{display:none!important}
   .app{max-width:100%!important}
   .content{padding:0!important;overflow:visible!important}
-  .page{display:flex!important}
+  .page{display:none!important}
   #page-hesapla{display:flex!important}
   #page-coklu,#page-gecmis{display:none!important}
-  .card{background:#fff!important;border:1px solid #ddd!important;border-radius:8px!important;break-inside:avoid;margin-bottom:12px}
-  .card-header{color:#666!important}
-  .spec-item{background:#f5f5f5!important;border:1px solid #ddd!important}
-  .spec-item.featured{background:#e8f0fe!important;border-color:#4285f4!important}
-  .spec-item.featured .s-value{color:#1a56db!important}
-  .spec-item.featured .s-label{color:#3b82f6!important}
-  .s-label{color:#666!important}
-  .s-value{color:#111!important}
-  .s-sub{color:#888!important}
-  .screen-preview{background:#f5f5f5!important}
-  .screen-box{background:#dbeafe!important;border-color:#3b82f6!important}
-  .screen-box span{color:#1e40af!important}
-  .mesafe-info{background:#f3e8ff!important;border-color:#a855f7!important}
+  .card{background:#fff!important;border:2px solid #1e6fff!important;border-radius:8px!important;break-inside:avoid;margin-bottom:14px!important}
+  .card-header{color:#1e6fff!important;font-size:10px!important;padding:12px 14px 0!important}
+  .card-body{padding:10px 14px 14px!important}
+  .field label{color:#555!important}
+  select,input[type=number],input[type=text],input[type=date]{background:#f0f6ff!important;border:1px solid #93c5fd!important;color:#111!important;height:36px!important}
+  .tabs{background:#e8f0fe!important;border-radius:8px!important;padding:3px!important;margin-bottom:10px!important}
+  .tab{color:#555!important;background:transparent!important;border-radius:6px!important}
+  .tab.active{background:#1e6fff!important;color:#fff!important}
+  .spec-grid{gap:6px!important}
+  .spec-item{background:#f0f6ff!important;border:1.5px solid #93c5fd!important;border-radius:8px!important}
+  .spec-item.featured{background:#1e6fff!important;border-color:#1e6fff!important}
+  .spec-item.featured .s-value{color:#fff!important;font-size:20px!important}
+  .spec-item.featured .s-label{color:#bfdbfe!important}
+  .s-label{color:#3b5bdb!important;font-size:10px!important}
+  .s-value{color:#111!important;font-size:14px!important}
+  .s-sub{color:#555!important}
+  .mesafe-info{background:#f3e8ff!important;border:1.5px solid #a855f7!important;border-radius:8px!important}
   .mesafe-info .mi-label{color:#7c3aed!important}
-  .mesafe-info .mi-value{color:#6d28d9!important}
-  .print-header{display:block!important}
+  .mesafe-info .mi-value{color:#5b21b6!important}
+  .print-header{display:flex!important}
 }
-.print-header{display:none;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #3b82f6}
-.print-header h1{font-size:20px;font-weight:700;color:#111;margin-bottom:4px}
-.print-header p{font-size:13px;color:#666}
+.print-header{display:none;align-items:center;gap:14px;margin-bottom:16px;padding-bottom:14px;border-bottom:3px solid #1e6fff}
+.print-logo{width:40px;height:40px;background:#1e6fff;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.print-logo svg{width:22px;height:22px}
+.print-info h1{font-size:18px;font-weight:700;color:#111;margin-bottom:3px}
+.print-info p{font-size:12px;color:#555}
 </style>
 </head>
 <body>
@@ -152,8 +160,17 @@ input:focus,select:focus{border-color:var(--blue);background:rgba(30,111,255,0.0
       </div>
 
       <div class="print-header">
-        <h1 id="print-title">LED Ekran Teknik Özeti</h1>
-        <p id="print-meta"></p>
+        <div class="print-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="7" cy="10" r="1" fill="#fff"/><circle cx="12" cy="10" r="1" fill="#fff"/><circle cx="17" cy="10" r="1" fill="#fff"/>
+            <circle cx="7" cy="14" r="1" fill="#fff"/><circle cx="12" cy="14" r="1" fill="#fff"/><circle cx="17" cy="14" r="1" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="print-info">
+          <h1 id="print-title">LED Ekran Teknik Özeti</h1>
+          <p id="print-meta">Universal line · LED Hesaplayıcı</p>
+        </div>
       </div>
 
       <div class="card">
@@ -400,8 +417,11 @@ function updatePreview(wm,hm,resW,resH){
 function updatePrintHeader(){
   const ad=document.getElementById('etkinlik-adi').value;
   const tar=document.getElementById('etkinlik-tarih').value;
+  const ver=document.getElementById('version').options[document.getElementById('version').selectedIndex].text;
   document.getElementById('print-title').textContent=ad?ad+' — LED Teknik Özeti':'LED Ekran Teknik Özeti';
-  document.getElementById('print-meta').textContent=tar?'Tarih: '+new Date(tar).toLocaleDateString('tr-TR'):'' ;
+  const parts=['Universal line · '+ver];
+  if(tar) parts.push(new Date(tar).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}));
+  document.getElementById('print-meta').textContent=parts.join(' · ');
 }
 
 function copyPixels(){
